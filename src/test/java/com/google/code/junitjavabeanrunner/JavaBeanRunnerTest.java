@@ -45,6 +45,21 @@ public class JavaBeanRunnerTest {
 		new JavaBeanRunner(FixtureMethodWithParameters.class);
 	}
 	
+	@Test(expected=Throwable.class)
+	public void privateFixtureMethodThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(PrivateFixtureMethod.class);
+	}
+	
+	@Test(expected=Throwable.class)
+	public void protectedFixtureMethodThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(ProtectedFixtureMethod.class);
+	}
+	
+	@Test(expected=Throwable.class)
+	public void defaultFixtureMethodThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(DefaultFixtureMethod.class);
+	}
+	
 	@Test
 	public void nonFixtureMethodDoesntThrowThrowable() throws Throwable {
 		new JavaBeanRunner(FixtureAndNonFixtureMethod.class);
@@ -106,6 +121,30 @@ public class JavaBeanRunnerTest {
 	private static class FixtureMethodWithParameters {
 		@Fixture
 		public Object getFixture(Object param) {
+			return new Object();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class PrivateFixtureMethod {
+		@Fixture
+		private Object getFixture() {
+			return new Object();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class ProtectedFixtureMethod {
+		@Fixture
+		protected Object getFixture() {
+			return new Object();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class DefaultFixtureMethod {
+		@Fixture
+		Object getFixture() {
 			return new Object();
 		}
 	}
