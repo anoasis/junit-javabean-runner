@@ -27,7 +27,27 @@ public class JavaBeanRunnerTest {
 	
 	@Test(expected=Throwable.class)
 	public void missingFixtureAnnotationThrowsThrowable() throws Throwable {
-		new JavaBeanRunner(MissingFixture.class);
+		new JavaBeanRunner(MissingFixtureAnnotation.class);
+	}
+	
+	@Test(expected=Throwable.class)
+	public void morethanOneFixtureAnnotationThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(TooManyFixtureAnnotations.class);
+	}
+	
+	@Test(expected=Throwable.class)
+	public void voidFixtureMethodThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(VoidFixtureMethod.class);
+	}
+	
+	@Test(expected=Throwable.class)
+	public void fixtureMethodWithParametersThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(FixtureMethodWithParameters.class);
+	}
+	
+	@Test
+	public void nonFixtureMethodDoesntThrowThrowable() throws Throwable {
+		new JavaBeanRunner(FixtureAndNonFixtureMethod.class);
 	}
 	
 	@Test
@@ -49,13 +69,56 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	private static class MissingFixture {
+	private static class MissingFixtureAnnotation {
 		
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(Object.class)
 	private static class Empty {
+		@Fixture
+		public Object getFixture() {
+			return new Object();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class TooManyFixtureAnnotations {
+		@Fixture
+		public Object getFixture() {
+			return new Object();
+		}
 		
+		@Fixture
+		public Object getAnotherFixture() {
+			return new Object();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class VoidFixtureMethod {
+		@Fixture
+		public void getFixture() {
+			
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class FixtureMethodWithParameters {
+		@Fixture
+		public Object getFixture(Object param) {
+			return new Object();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class FixtureAndNonFixtureMethod {
+		@Fixture
+		public Object getFixture() {
+			return new Object();
+		}
+		
+		public Object getAnotherObject() {
+			return new Object();
+		}
 	}
 }

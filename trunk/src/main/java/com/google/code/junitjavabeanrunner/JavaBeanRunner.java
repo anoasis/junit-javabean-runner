@@ -1,5 +1,9 @@
 package com.google.code.junitjavabeanrunner;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
@@ -19,9 +23,36 @@ public class JavaBeanRunner extends Runner {
 	}
 	
 	private void validateFixtureAnnotation(Class<?> testClass) throws Throwable {
-		Fixture fixture = testClass.getAnnotation(Fixture.class);
-		if (fixture == null) {
-			throw new InitializationError("Missing @Fixture");
+		List<Method> methods = listFixtureMethods(testClass);
+		if (methods.isEmpty()) {
+			throw new InitializationError("Missing a @Fixture method");
+		}
+		if (methods.size() > 1) {
+			throw new InitializationError("Too many @Fixture methods");
+		}
+	}
+	
+	private List<Method> listFixtureMethods(Class<?> testClass) throws InitializationError {
+		List<Method> methods = new ArrayList<Method>();
+		
+		for (Method method : testClass.getDeclaredMethods()) {
+			Fixture fixture = method.getAnnotation(Fixture.class);
+			if (fixture != null) {
+				validateFixtureMethod(method);
+				methods.add(method);
+			}
+		}
+		
+		return methods;
+	}
+	
+	private void validateFixtureMethod(Method method) throws InitializationError {
+		Class<?> returnType = method.getReturnType();
+		if (returnType.isPrimitive()) {
+			throw new InitializationError("@Fixture method must return an object");
+		}
+		if (method.getParameterTypes().length != 0) {
+			throw new InitializationError("@Fixture method must have no parameters");
 		}
 	}
 
