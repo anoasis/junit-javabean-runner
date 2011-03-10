@@ -1,6 +1,7 @@
 package com.google.code.junitjavabeanrunner;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +55,10 @@ public class JavaBeanRunner extends Runner {
 		if (method.getParameterTypes().length != 0) {
 			throw new InitializationError("@Fixture method must have no parameters");
 		}
+		if (Modifier.isPublic(method.getModifiers()) == false) {
+			throw new InitializationError("@Fixture method must be public access");
+		}
+		
 	}
 
 	private void validateRunWithAnnotation(Class<?> testClass) throws Throwable {
