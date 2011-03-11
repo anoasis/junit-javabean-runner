@@ -35,26 +35,32 @@ public class JavaBeanRunner extends Runner {
 		List<Constructor<?>> ctors = new ArrayList<Constructor<?>>();
 		
 		for (Constructor<?> ctor : fixtureClass.getConstructors()) {
-			validateConstructor(ctor);
-			ctors.add(ctor);
+			if (hasParameters(ctor) == false) {
+				ctors.add(ctor);
+			}
 		}
 		
 		return ctors;
 	}
 	
-	private void validateConstructor(Constructor<?> ctor) throws InitializationError {
-		if (ctor.getParameterTypes().length != 0) {
-			throw new InitializationError("Constructor must have no parameters");
+	private boolean hasParameters(Constructor<?> ctor) {
+		if (ctor.getParameterTypes().length > 0) {
+			return true;
 		}
+		return false;
+	}
+	
+	private boolean hasParameters(Method method) {
+		if (method.getParameterTypes().length > 0) {
+			return true;
+		}
+		return false;
 	}
 
 	private Object validateFixtureAnnotation(Class<?> testClass) throws Throwable {
 		List<Method> methods = listFixtureMethods(testClass);
-		if (methods.isEmpty()) {
-			throw new InitializationError("Missing a @Fixture method");
-		}
-		if (methods.size() > 1) {
-			throw new InitializationError("Too many @Fixture methods");
+		if (methods.size() != 1) {
+			throw new InitializationError("Only a single fixture method is permitted");
 		}
 		Method fixtureMethod = methods.get(0);
 		return fixtureMethod.invoke(testClass);
@@ -76,17 +82,18 @@ public class JavaBeanRunner extends Runner {
 	
 	private void validateFixtureMethod(Method method) throws InitializationError {
 		Class<?> returnType = method.getReturnType();
-		if (returnType.isPrimitive()) {
-			throw new InitializationError("@Fixture method must return an object");
-		}
-		if (method.getParameterTypes().length != 0) {
-			throw new InitializationError("@Fixture method must have no parameters");
-		}
+
 		if (Modifier.isPublic(method.getModifiers()) == false) {
 			throw new InitializationError("@Fixture method must be public access");
 		}
 		if (Modifier.isStatic(method.getModifiers()) == false) {
 			throw new InitializationError("@Fixture method must be static");
+		}
+		if (returnType.isPrimitive()) {
+			throw new InitializationError("@Fixture method must return an object");
+		}
+		if (hasParameters(method)) {
+			throw new InitializationError("@Fixture method must have no parameters");
 		}
 	}
 
