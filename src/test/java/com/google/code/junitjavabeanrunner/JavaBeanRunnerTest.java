@@ -1,6 +1,8 @@
 package com.google.code.junitjavabeanrunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -107,15 +109,32 @@ public class JavaBeanRunnerTest {
 	@Test
 	public void nonBeanHasEmptyDescription() throws Throwable {
 		Runner runner = new JavaBeanRunner(Empty.class);
-		assertEquals(Description.EMPTY, runner.getDescription());
+		assertTrue(runner.getDescription().isEmpty());
+	}
+	
+	@Test
+	public void nonBeanDescriptionHasNoChildren() throws Throwable {
+		Runner runner = new JavaBeanRunner(Empty.class);
+		assertTrue(runner.getDescription().getChildren().isEmpty());
+	}
+	
+	@Test
+	public void beanHasNonEmptyDescription() throws Throwable {
+		Runner runner = new JavaBeanRunner(Simple.class);
+		assertFalse(runner.getDescription().isEmpty());
+	}
+	
+	@Test
+	public void beanDescriptionHasChildren() throws Throwable {
+		Runner runner = new JavaBeanRunner(Simple.class);
+		assertFalse(runner.getDescription().getChildren().isEmpty());
 	}
 	
 	@Test
 	public void nonBeanRunStartsAndFinishes() throws Throwable {
-		Runner runner = new JavaBeanRunner(Empty.class);
-		
 		RunNotifier notifier = mock(RunNotifier.class);
 		
+		Runner runner = new JavaBeanRunner(Empty.class);
 		runner.run(notifier);
 		
 		verify(notifier).fireTestStarted(Description.EMPTY);
@@ -133,7 +152,15 @@ public class JavaBeanRunnerTest {
 	private static class Empty {
 		@Fixture
 		public static Object getFixture() {
-			return new Object();
+			return new EmptyFixture();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class Simple {
+		@Fixture
+		public static SimpleBean getFixture() {
+			return new SimpleBean();
 		}
 	}
 	
@@ -276,5 +303,9 @@ public class JavaBeanRunnerTest {
 		public static Object getFixture() {
 			throw new RuntimeException();
 		}
+	}
+	
+	public static class EmptyFixture {
+		
 	}
 }
