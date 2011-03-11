@@ -29,7 +29,7 @@ public class MutationStatementTest {
 	@Test
 	public void getterIsInvokedOnSource() throws Throwable {
 		when(source.getValue()).thenReturn("value");
-		when(target.getValue()).thenReturn(null, "value");
+		when(target.getValue()).thenReturn("value");
 		
 		Statement stmt = new MutationStatement(source, target, getter, setter);
 		stmt.evaluate();
@@ -40,38 +40,23 @@ public class MutationStatementTest {
 	@Test
 	public void getterIsInvokedOnTarget() throws Throwable {
 		when(source.getValue()).thenReturn("value");
-		when(target.getValue()).thenReturn(null, "value");
+		when(target.getValue()).thenReturn("value");
 		
 		Statement stmt = new MutationStatement(source, target, getter, setter);
 		stmt.evaluate();
 		
-		verify(target, times(2)).getValue();
+		verify(target, times(1)).getValue();
 	}
 	
 	@Test
 	public void setterIsInvokedOnTarget() throws Throwable {
 		when(source.getValue()).thenReturn("value");
-		when(target.getValue()).thenReturn(null, "value");
+		when(target.getValue()).thenReturn("value");
 		
 		Statement stmt = new MutationStatement(source, target, getter, setter);
 		stmt.evaluate();
 		
 		verify(target).setValue("value");
-	}
-	
-	@Test(expected=PreconditionFailureException.class)
-	public void evaluateThrowsRuntimeExceptionWhenSourceValueNull() throws Throwable {
-		Statement stmt = new MutationStatement(source, target, getter, setter);
-		stmt.evaluate();
-	}
-	
-	@Test(expected=PreconditionFailureException.class)
-	public void evaluateThrowsRuntimeExceptionWhenValuesEqual() throws Throwable {
-		when(source.getValue()).thenReturn("value");
-		when(target.getValue()).thenReturn("value");
-		
-		Statement stmt = new MutationStatement(source, target, getter, setter);
-		stmt.evaluate();
 	}
 	
 	@Test(expected=AssertionError.class)

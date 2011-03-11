@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.awt.Point;
+import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -119,6 +121,18 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@Test
+	public void readOnlyBeanHasEmptyDescription() throws Throwable {
+		Runner runner = new JavaBeanRunner(ReadOnlyFixture.class);
+		assertTrue(runner.getDescription().isEmpty());
+	}
+	
+	@Test
+	public void readOnlyBeanDescriptionHasNoChildren() throws Throwable {
+		Runner runner = new JavaBeanRunner(ReadOnlyFixture.class);
+		assertTrue(runner.getDescription().getChildren().isEmpty());
+	}
+	
+	@Test
 	public void beanHasNonEmptyDescription() throws Throwable {
 		Runner runner = new JavaBeanRunner(Simple.class);
 		assertFalse(runner.getDescription().isEmpty());
@@ -131,14 +145,38 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@Test
+	public void beanDescriptionHasSameNumberChildrenAsProperties() throws Throwable {
+		Runner runner = new JavaBeanRunner(Simple.class);
+		assertEquals(2, runner.getDescription().getChildren().size());
+	}
+	
+	@Test
 	public void nonBeanRunStartsAndFinishes() throws Throwable {
 		RunNotifier notifier = mock(RunNotifier.class);
 		
 		Runner runner = new JavaBeanRunner(Empty.class);
+		Description desc = runner.getDescription();
 		runner.run(notifier);
 		
-		verify(notifier).fireTestStarted(Description.EMPTY);
-		verify(notifier).fireTestFinished(Description.EMPTY);
+		verify(notifier).fireTestStarted(desc);
+		verify(notifier).fireTestFinished(desc);
+	}
+	
+	@Test
+	public void beanRunFiresForEachProperty() throws Throwable {
+		RunNotifier notifier = mock(RunNotifier.class);
+		
+		Runner runner = new JavaBeanRunner(Simple.class);
+		Description desc = runner.getDescription();
+		List<Description> children = desc.getChildren();
+		runner.run(notifier);
+		
+		verify(notifier, times(1)).fireTestStarted(desc);
+		verify(notifier, times(1)).fireTestFinished(desc);
+		for (Description child : children) {
+			verify(notifier, times(1)).fireTestStarted(child);
+			verify(notifier, times(1)).fireTestFinished(child);
+		}
 	}
 	
 	@RunWith(JavaBeanRunner.class)
@@ -160,7 +198,11 @@ public class JavaBeanRunnerTest {
 	private static class Simple {
 		@Fixture
 		public static SimpleBean getFixture() {
-			return new SimpleBean();
+			SimpleBean bean = new SimpleBean();
+			bean.setValue("value");
+			bean.setSize(1);
+			
+			return bean;
 		}
 	}
 	
@@ -307,5 +349,19 @@ public class JavaBeanRunnerTest {
 	
 	public static class EmptyFixture {
 		
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class ReadOnlyFixture {
+		@Fixture
+		public static Object getFixture() {
+			return new ReadOnlyBean();
+		}
+	}
+	
+	public static class ReadOnlyBean {
+		public String getValue() {
+			return "value";
+		}
 	}
 }
