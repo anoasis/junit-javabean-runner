@@ -71,6 +71,26 @@ public class JavaBeanRunnerTest {
 		new JavaBeanRunner(NonStaticFixtureMethod.class);
 	}
 	
+	@Test(expected=Throwable.class)
+	public void privateAccessConstructorThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(PrivateAccessConstructorFixture.class);
+	}
+	
+	@Test(expected=Throwable.class)
+	public void protectedAccessConstructorThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(ProtectedAccessConstructorFixture.class);
+	}
+	
+	@Test(expected=Throwable.class)
+	public void defaultAccessConstructorThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(DefaultAccessConstructorFixture.class);
+	}
+	
+	@Test(expected=Throwable.class)
+	public void constructorWithParametersThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(ConstructorWithParametersFixture.class);
+	}
+	
 	@Test
 	public void nonBeanHasEmptyDescription() throws Throwable {
 		Runner runner = new JavaBeanRunner(Empty.class);
@@ -170,6 +190,54 @@ public class JavaBeanRunnerTest {
 		@Fixture
 		public Object getFixture() {
 			return new Object();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class PrivateAccessConstructorFixture {
+		private PrivateAccessConstructorFixture() {
+			
+		}
+		
+		@Fixture
+		public static Object getFixture() {
+			return new PrivateAccessConstructorFixture();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class ProtectedAccessConstructorFixture {
+		protected ProtectedAccessConstructorFixture() {
+			
+		}
+		
+		@Fixture
+		public static Object getFixture() {
+			return new ProtectedAccessConstructorFixture();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class DefaultAccessConstructorFixture {
+		DefaultAccessConstructorFixture() {
+			
+		}
+		
+		@Fixture
+		public static Object getFixture() {
+			return new DefaultAccessConstructorFixture();
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class ConstructorWithParametersFixture {
+		public ConstructorWithParametersFixture(Object param) {
+			
+		}
+		
+		@Fixture
+		public static Object getFixture() {
+			return new ConstructorWithParametersFixture(new Object());
 		}
 	}
 }
