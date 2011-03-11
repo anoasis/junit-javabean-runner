@@ -24,14 +24,20 @@ public class JavaBeanRunner extends Runner {
 		
 		validateRunWithAnnotation(testClass);
 		Object fixture = validateFixtureAnnotation(testClass);
-		validateFixture(fixture);
+		Object newInstance = validateFixture(fixture);
 	}
 	
-	private void validateFixture(Object fixture) throws InitializationError {
+	private Object validateFixture(Object fixture) throws InitializationError {
 		Class<?> fixtureClass = fixture.getClass();
 		List<Constructor<?>> ctors = listFixtureConstructors(fixtureClass);
 		if (ctors.isEmpty()) {
 			throw new InitializationError("Fixture class needs a public constructor");
+		}
+		Constructor<?> ctor = ctors.get(0);
+		try {
+			return ctor.newInstance();
+		} catch (Throwable t) {
+			throw new InitializationError(t);
 		}
 	}
 
@@ -61,13 +67,17 @@ public class JavaBeanRunner extends Runner {
 		return false;
 	}
 
-	private Object validateFixtureAnnotation(Class<?> testClass) throws Throwable {
+	private Object validateFixtureAnnotation(Class<?> testClass) throws InitializationError {
 		List<Method> methods = listFixtureMethods(testClass);
 		if (methods.size() != 1) {
 			throw new InitializationError("Only a single fixture method is permitted");
 		}
 		Method fixtureMethod = methods.get(0);
-		return fixtureMethod.invoke(testClass);
+		try {
+			return fixtureMethod.invoke(testClass);
+		} catch (Throwable t) {
+			throw new InitializationError(t);
+		}
 	}
 	
 	private List<Method> listFixtureMethods(Class<?> testClass) throws InitializationError {

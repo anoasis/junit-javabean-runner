@@ -12,85 +12,96 @@ import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.JUnit4;
+import org.junit.runners.model.InitializationError;
 
 import com.google.code.junitjavabeanrunner.JavaBeanRunner.Fixture;
 
 @SuppressWarnings("unused")
 @RunWith(JUnit4.class)
 public class JavaBeanRunnerTest {
-	@Test(expected=Throwable.class)
-	public void missingRunWithAnnotationThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void missingRunWithAnnotationThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(Point.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void wrongRunnerInRunWithAnnotationThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void wrongRunnerInRunWithAnnotationThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(JavaBeanRunnerTest.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void missingFixtureAnnotationThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void missingFixtureAnnotationThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(MissingFixtureAnnotation.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void morethanOneFixtureAnnotationThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void morethanOneFixtureAnnotationThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(TooManyFixtureAnnotations.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void voidFixtureMethodThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void voidFixtureMethodThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(VoidFixtureMethod.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void primitiveFixtureMethodThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void primitiveFixtureMethodThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(PrimitiveFixtureMethod.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void fixtureMethodWithParametersThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void fixtureMethodWithParametersThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(FixtureMethodWithParameters.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void privateAccessFixtureMethodThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void exceptionInFixtureMethodThrowsInitializationError() throws Throwable {
+		new JavaBeanRunner(ExceptionInFixture.class);
+	}
+	
+	@Test(expected=InitializationError.class)
+	public void privateAccessFixtureMethodThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(PrivateFixtureMethod.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void protectedAccessFixtureMethodThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void protectedAccessFixtureMethodThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(ProtectedFixtureMethod.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void defaultAccessFixtureMethodThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void defaultAccessFixtureMethodThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(DefaultFixtureMethod.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void nonStaticFixtureMethodThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void nonStaticFixtureMethodThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(NonStaticFixtureMethod.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void privateAccessConstructorThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void privateAccessConstructorThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(PrivateAccessConstructorFixture.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void protectedAccessConstructorThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void protectedAccessConstructorThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(ProtectedAccessConstructorFixture.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void defaultAccessConstructorThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void defaultAccessConstructorThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(DefaultAccessConstructorFixture.class);
 	}
 	
-	@Test(expected=Throwable.class)
-	public void constructorWithParametersThrowsThrowable() throws Throwable {
+	@Test(expected=InitializationError.class)
+	public void constructorWithParametersThrowsInitializationError() throws Throwable {
 		new JavaBeanRunner(ConstructorWithParametersFixture.class);
+	}
+	
+	@Test(expected=InitializationError.class)
+	public void exceptionInConstructorThrowsInitializationError() throws Throwable {
+		new JavaBeanRunner(ExceptionInConstructorFixture.class);
 	}
 	
 	@Test
@@ -240,6 +251,30 @@ public class JavaBeanRunnerTest {
 		@Fixture
 		public static Object getFixture() {
 			return new ConstructorWithParametersFixture(new Object());
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class ExceptionInConstructorFixture {
+		public ExceptionInConstructorFixture() {
+			throw new RuntimeException();
+		}
+		
+		public ExceptionInConstructorFixture(Object param) {
+			
+		}
+		
+		@Fixture
+		public static Object getFixture() {
+			return new ExceptionInConstructorFixture(new Object());
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class ExceptionInFixture {
+		@Fixture
+		public static Object getFixture() {
+			throw new RuntimeException();
 		}
 	}
 }
