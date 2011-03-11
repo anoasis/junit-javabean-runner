@@ -1,5 +1,8 @@
 package com.google.code.junitjavabeanrunner;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -20,11 +23,20 @@ public class JavaBeanRunner extends Runner {
 	private final Description description;
 	
 	public JavaBeanRunner(Class<?> testClass)  throws Throwable {
-		this.description = Description.EMPTY;
-		
 		validateRunWithAnnotation(testClass);
 		Object fixture = validateFixtureAnnotation(testClass);
-		Object newInstance = validateFixture(fixture);
+		validateFixture(fixture);
+		
+		BeanInfo info = Introspector.getBeanInfo(fixture.getClass(), Object.class);
+		PropertyDescriptor[] props = info.getPropertyDescriptors();
+		if (props.length == 0) {
+			this.description = Description.EMPTY;
+		} else {
+			this.description = Description.createSuiteDescription(fixture.getClass());
+			for (PropertyDescriptor prop : props) {
+				this.description.addChild(Description.createTestDescription(fixture.getClass(), prop.getName()));
+			}
+		}
 	}
 	
 	private Object validateFixture(Object fixture) throws InitializationError {
