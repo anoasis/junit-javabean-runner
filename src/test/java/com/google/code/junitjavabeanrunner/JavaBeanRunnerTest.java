@@ -13,6 +13,8 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.JUnit4;
 
+import com.google.code.junitjavabeanrunner.JavaBeanRunner.Fixture;
+
 @SuppressWarnings("unused")
 @RunWith(JUnit4.class)
 public class JavaBeanRunnerTest {
