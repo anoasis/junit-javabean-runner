@@ -34,27 +34,20 @@ public class MutationStatement extends Statement {
 	@Override
 	public void evaluate() throws PreconditionFailureException, AssertionError {
 		Object sourceValue;
-		Object targetValue;
 		try {
 			sourceValue = getter.invoke(source);
-			targetValue = getter.invoke(target);
 		} catch (Exception e) {
 			throw new PreconditionFailureException(e);
 		}
 
-		if (sourceValue == null) {
-			throw new PreconditionFailureException("Source value should be null");
-		}
-		
-		if (sourceValue.equals(targetValue)) {
-			throw new PreconditionFailureException("Source and target values should be unequal");
-		}
-		
+		Object targetValue;
 		try {
 			setter.invoke(target, sourceValue);
-			assertEquals(sourceValue, getter.invoke(target));
+			targetValue = getter.invoke(target);
 		} catch (Exception e) {
 			throw new PreconditionFailureException(e);
 		}
+		
+		assertEquals(sourceValue, targetValue);
 	}
 }

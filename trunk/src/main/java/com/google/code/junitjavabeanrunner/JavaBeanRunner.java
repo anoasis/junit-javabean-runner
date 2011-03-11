@@ -11,32 +11,58 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.Statement;
 
 public class JavaBeanRunner extends Runner {
-	private final Description description;
+	private final Description desc;
+	private final Class<?> sourceClass;
+	private final Object source;
+	private final Object target;
+	private final Map<Description, Statement> descMap;
 	
 	public JavaBeanRunner(Class<?> testClass)  throws Throwable {
 		validateRunWithAnnotation(testClass);
-		Object fixture = validateFixtureAnnotation(testClass);
-		validateFixture(fixture);
+		source = validateFixtureAnnotation(testClass);
+		sourceClass = source.getClass();
+		target = validateFixture(source);
 		
-		BeanInfo info = Introspector.getBeanInfo(fixture.getClass(), Object.class);
-		PropertyDescriptor[] props = info.getPropertyDescriptors();
-		if (props.length == 0) {
-			this.description = Description.EMPTY;
+		BeanInfo info = Introspector.getBeanInfo(sourceClass, Object.class);
+		descMap = getStatements(info.getPropertyDescriptors()); 
+		if (descMap.isEmpty()) {
+			this.desc = Description.EMPTY;
 		} else {
-			this.description = Description.createSuiteDescription(fixture.getClass());
-			for (PropertyDescriptor prop : props) {
-				this.description.addChild(Description.createTestDescription(fixture.getClass(), prop.getName()));
-			}
+			this.desc = Description.createSuiteDescription(testClass);
+			this.desc.getChildren().addAll(descMap.keySet());
 		}
+	}
+	
+	private Map<Description, Statement> getStatements(PropertyDescriptor[] props) {
+		Map<Description, Statement> map = new HashMap<Description, Statement>();
+		
+		for (PropertyDescriptor prop : props) {
+			Method setter = prop.getWriteMethod();
+			Method getter = prop.getReadMethod();
+			
+			if (setter == null) {
+				continue;
+			}
+			String testName = getter.getName();
+			Description desc = Description.createTestDescription(sourceClass, testName);
+			Statement stmt = new MutationStatement(source, target, getter, setter);
+			map.put(desc, stmt);
+		}
+		
+		return map;
 	}
 	
 	private Object validateFixture(Object fixture) throws InitializationError {
@@ -135,13 +161,23 @@ public class JavaBeanRunner extends Runner {
 	
 	@Override
 	public Description getDescription() {
-		return description;
+		return desc;
 	}
 
 	@Override
 	public void run(RunNotifier notifier) {
-		notifier.fireTestStarted(description);
-		notifier.fireTestFinished(description);
+		notifier.fireTestStarted(desc);
+		for (Description child : desc.getChildren()) {
+			notifier.fireTestStarted(child);
+			Statement stmt = descMap.get(child);
+			try {
+				stmt.evaluate();
+				notifier.fireTestFinished(child);
+			} catch (Throwable t) {
+				notifier.fireTestFailure(new Failure(child, t));
+			}
+		}
+		notifier.fireTestFinished(desc);
 	}
 	
 	@Retention(RetentionPolicy.RUNTIME)
