@@ -1,5 +1,9 @@
 package com.google.code.junitjavabeanrunner;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -116,5 +120,10 @@ public class JavaBeanRunner extends Runner {
 	public void run(RunNotifier notifier) {
 		notifier.fireTestStarted(description);
 		notifier.fireTestFinished(description);
+	}
+	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target({ElementType.METHOD})
+	public @interface Fixture {
 	}
 }
