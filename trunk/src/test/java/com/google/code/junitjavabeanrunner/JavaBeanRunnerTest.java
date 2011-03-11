@@ -13,6 +13,7 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.JUnit4;
 
+@SuppressWarnings("unused")
 @RunWith(JUnit4.class)
 public class JavaBeanRunnerTest {
 	@Test(expected=Throwable.class)
@@ -41,28 +42,33 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@Test(expected=Throwable.class)
+	public void primitiveFixtureMethodThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(PrimitiveFixtureMethod.class);
+	}
+	
+	@Test(expected=Throwable.class)
 	public void fixtureMethodWithParametersThrowsThrowable() throws Throwable {
 		new JavaBeanRunner(FixtureMethodWithParameters.class);
 	}
 	
 	@Test(expected=Throwable.class)
-	public void privateFixtureMethodThrowsThrowable() throws Throwable {
+	public void privateAccessFixtureMethodThrowsThrowable() throws Throwable {
 		new JavaBeanRunner(PrivateFixtureMethod.class);
 	}
 	
 	@Test(expected=Throwable.class)
-	public void protectedFixtureMethodThrowsThrowable() throws Throwable {
+	public void protectedAccessFixtureMethodThrowsThrowable() throws Throwable {
 		new JavaBeanRunner(ProtectedFixtureMethod.class);
 	}
 	
 	@Test(expected=Throwable.class)
-	public void defaultFixtureMethodThrowsThrowable() throws Throwable {
+	public void defaultAccessFixtureMethodThrowsThrowable() throws Throwable {
 		new JavaBeanRunner(DefaultFixtureMethod.class);
 	}
 	
-	@Test
-	public void nonFixtureMethodDoesntThrowThrowable() throws Throwable {
-		new JavaBeanRunner(FixtureAndNonFixtureMethod.class);
+	@Test(expected=Throwable.class)
+	public void nonStaticFixtureMethodThrowsThrowable() throws Throwable {
+		new JavaBeanRunner(NonStaticFixtureMethod.class);
 	}
 	
 	@Test
@@ -85,13 +91,15 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	private static class MissingFixtureAnnotation {
-		
+		public static Object getFixture() {
+			return new Object();
+		}
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	private static class Empty {
 		@Fixture
-		public Object getFixture() {
+		public static Object getFixture() {
 			return new Object();
 		}
 	}
@@ -99,12 +107,12 @@ public class JavaBeanRunnerTest {
 	@RunWith(JavaBeanRunner.class)
 	private static class TooManyFixtureAnnotations {
 		@Fixture
-		public Object getFixture() {
+		public static Object getFixture() {
 			return new Object();
 		}
 		
 		@Fixture
-		public Object getAnotherFixture() {
+		public static Object getAnotherFixture() {
 			return new Object();
 		}
 	}
@@ -112,15 +120,23 @@ public class JavaBeanRunnerTest {
 	@RunWith(JavaBeanRunner.class)
 	private static class VoidFixtureMethod {
 		@Fixture
-		public void getFixture() {
+		public static void getFixture() {
 			
+		}
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	private static class PrimitiveFixtureMethod {
+		@Fixture
+		public static int getFixture() {
+			return Integer.MAX_VALUE;
 		}
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	private static class FixtureMethodWithParameters {
 		@Fixture
-		public Object getFixture(Object param) {
+		public static Object getFixture(Object param) {
 			return new Object();
 		}
 	}
@@ -128,7 +144,7 @@ public class JavaBeanRunnerTest {
 	@RunWith(JavaBeanRunner.class)
 	private static class PrivateFixtureMethod {
 		@Fixture
-		private Object getFixture() {
+		private static Object getFixture() {
 			return new Object();
 		}
 	}
@@ -136,7 +152,7 @@ public class JavaBeanRunnerTest {
 	@RunWith(JavaBeanRunner.class)
 	private static class ProtectedFixtureMethod {
 		@Fixture
-		protected Object getFixture() {
+		protected static Object getFixture() {
 			return new Object();
 		}
 	}
@@ -144,19 +160,15 @@ public class JavaBeanRunnerTest {
 	@RunWith(JavaBeanRunner.class)
 	private static class DefaultFixtureMethod {
 		@Fixture
-		Object getFixture() {
+		static Object getFixture() {
 			return new Object();
 		}
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	private static class FixtureAndNonFixtureMethod {
+	private static class NonStaticFixtureMethod {
 		@Fixture
 		public Object getFixture() {
-			return new Object();
-		}
-		
-		public Object getAnotherObject() {
 			return new Object();
 		}
 	}

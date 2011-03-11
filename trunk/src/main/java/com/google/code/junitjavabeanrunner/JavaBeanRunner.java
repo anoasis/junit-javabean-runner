@@ -58,7 +58,9 @@ public class JavaBeanRunner extends Runner {
 		if (Modifier.isPublic(method.getModifiers()) == false) {
 			throw new InitializationError("@Fixture method must be public access");
 		}
-		
+		if (Modifier.isStatic(method.getModifiers()) == false) {
+			throw new InitializationError("@Fixture method must be static");
+		}
 	}
 
 	private void validateRunWithAnnotation(Class<?> testClass) throws Throwable {
