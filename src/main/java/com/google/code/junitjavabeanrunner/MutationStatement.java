@@ -2,7 +2,6 @@ package com.google.code.junitjavabeanrunner;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.junit.runners.model.Statement;
