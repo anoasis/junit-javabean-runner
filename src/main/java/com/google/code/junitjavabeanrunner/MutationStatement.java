@@ -1,9 +1,14 @@
 package com.google.code.junitjavabeanrunner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
 
+import org.hamcrest.Matcher;
+import static org.hamcrest.core.IsNot.*;
+import static org.hamcrest.core.IsEqual.*;
 import org.junit.runners.model.Statement;
 
 /**
@@ -15,13 +20,13 @@ import org.junit.runners.model.Statement;
  * Then compares the values.
  */
 public class MutationStatement extends Statement {
-	private final Object source;
+	private final Object sourceValue;
 	private final Object target;
 	private final Method getter;
 	private final Method setter;
 	
-	public MutationStatement(Object source, Object target, Method getter, Method setter) {
-		this.source = source;
+	public MutationStatement(Object sourceValue, Object target, Method getter, Method setter) {
+		this.sourceValue = sourceValue;
 		this.target = target;
 		this.getter = getter;
 		this.setter = setter;
@@ -32,21 +37,14 @@ public class MutationStatement extends Statement {
 	 */
 	@Override
 	public void evaluate() throws PreconditionFailureException, AssertionError {
-		Object sourceValue;
 		try {
-			sourceValue = getter.invoke(source);
-		} catch (Exception e) {
-			throw new PreconditionFailureException(e);
-		}
-
-		Object targetValue;
-		try {
+			Object originValue = getter.invoke(target);
 			setter.invoke(target, sourceValue);
-			targetValue = getter.invoke(target);
+			Object targetValue = getter.invoke(target);
+			assertEquals(sourceValue, targetValue);
+			assertThat(originValue, not(equalTo(targetValue)));
 		} catch (Exception e) {
 			throw new PreconditionFailureException(e);
 		}
-		
-		assertEquals(sourceValue, targetValue);
 	}
 }
