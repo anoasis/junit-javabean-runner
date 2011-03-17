@@ -120,6 +120,11 @@ public class JavaBeanRunnerTest {
 		new JavaBeanRunner(NonMatchingPropertyField.class);
 	}
 	
+	@Test(expected=InitializationError.class)
+	public void duplicatePropertyMembersThrowsInitializationError() throws Throwable {
+		new JavaBeanRunner(DuplicatePropertyMembers.class);
+	}
+	
 	@Test
 	public void goodBeanHasSuccessfulRun() throws Throwable {
 		Runner runner = new JavaBeanRunner(Simple.class);
@@ -177,7 +182,9 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	@Fixture(SimpleBean.class)
-	private static class Simple {
+	public static class Simple {
+		@Property("value")
+		public String value = "value";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
@@ -244,5 +251,16 @@ public class JavaBeanRunnerTest {
 	private static class NonMatchingPropertyField {
 		@Property("value")
 		public Integer name = new Integer(1);
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	@Fixture(SimpleBean.class)
+	private static class DuplicatePropertyMembers {
+		@Property("value")
+		public String value = "value";
+		@Property("value")
+		public String getValue() {
+			return value;
+		}
 	}
 }

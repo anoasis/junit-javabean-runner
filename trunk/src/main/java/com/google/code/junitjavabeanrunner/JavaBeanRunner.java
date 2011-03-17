@@ -21,67 +21,68 @@ import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
+import org.junit.runners.model.Statement;
 
 public class JavaBeanRunner extends Runner {
 	private final Class<?> fixture;
 	private final Constructor<?> constructor;
 	private final Description description;
+	private final Map<String, MemberAdapter> memberMap;
 	private final Set<PropertyDescriptor> properties;
 	
 	public JavaBeanRunner(Class<?> testClass) throws Throwable {
 		fixture = findFixture(testClass);
 		properties = findMutableProperties(fixture);
-		findSourceMethods(testClass, properties);
-		findSourceFields(testClass, properties);
+		memberMap = findMembers(testClass, properties);
 		constructor = findConstructor(fixture);
 		if (properties.isEmpty()) {
 			description = Description.EMPTY;
 		} else {
 			description = Description.createSuiteDescription(fixture);
 			for (PropertyDescriptor prop : properties) {
+				if (memberMap.containsKey(prop.getName()) == false) {
+					continue;
+				}
 				Description childDesc = Description.createTestDescription(fixture, prop.getName());
+				MemberAdapter member = memberMap.get(prop.getName());
+				Object sourceValue = member.getValue(testClass.newInstance());
+				Object target = constructor.newInstance();
+				Statement stmt = new MutationStatement(sourceValue, target, prop.getReadMethod(), prop.getWriteMethod());
+				stmt.evaluate();
 				description.addChild(childDesc);
 			}
 		}
 	}
 	
-	private Set<Field> findSourceFields(Class<?> testClass, Set<PropertyDescriptor> props) throws InitializationError {
-		Map<String, Class<?>> map = mapProperties(props);
-		Set<Field> fields = new HashSet<Field>();
-		
-		for (Field field : testClass.getDeclaredFields()) {
-			MemberWrapper member = MemberWrapper.wrap(field);
-			if (isValidProperty(member, map)) {
-				fields.add(field);
-			}
-		}
-		
-		return fields;
-	}
-
-	private Map<String, Class<?>> mapProperties(Set<PropertyDescriptor> props) {
+	private Map<String, MemberAdapter> findMembers(Class<?> testClass, Set<PropertyDescriptor> props) throws InitializationError {
 		Map<String, Class<?>> map = new HashMap<String, Class<?>>();
 		for (PropertyDescriptor prop : props) {
 			map.put(prop.getName(), prop.getPropertyType());
 		}
-		return map;
-	}
-	
-	private Set<Method> findSourceMethods(Class<?> testClass, Set<PropertyDescriptor> props) throws InitializationError {
-		Map<String, Class<?>> map = mapProperties(props);
-		Set<Method> methods = new HashSet<Method>();
+		Set<MemberAdapter> members = new HashSet<MemberAdapter>();
 		
 		for (Method method : testClass.getDeclaredMethods()) {
-			MemberWrapper member = MemberWrapper.wrap(method);
+			members.add(MemberAdapter.wrap(method));
+		}
+		for (Field field : testClass.getDeclaredFields()) {
+			members.add(MemberAdapter.wrap(field));
+		}
+		
+		Map<String, MemberAdapter> memberMap = new HashMap<String, MemberAdapter>();
+		for (MemberAdapter member : members) {
 			if (isValidProperty(member, map)) {
-				methods.add(method);
+				Property prop = member.getAnnotation(Property.class);
+				if (memberMap.containsKey(prop.value())) {
+					throw new InitializationError("Duplicate property member found: " + member);
+				}
+				memberMap.put(prop.value(), member);
 			}
 		}
 		
-		return methods;
+		return memberMap;
 	}
 	
-	private boolean isValidProperty(MemberWrapper member, Map<String, Class<?>> map) throws InitializationError {
+	private boolean isValidProperty(MemberAdapter member, Map<String, Class<?>> map) throws InitializationError {
 		Property prop = member.getAnnotation(Property.class);
 		if (prop == null) {
 			return false;

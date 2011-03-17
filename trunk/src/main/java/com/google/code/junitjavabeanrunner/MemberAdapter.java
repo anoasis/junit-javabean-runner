@@ -2,32 +2,39 @@ package com.google.code.junitjavabeanrunner;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
-public abstract class MemberWrapper {
+public abstract class MemberAdapter {
 	private final Member member;
 	
-	public MemberWrapper(Member member) {
+	public MemberAdapter(Member member) {
 		this.member = member;
 	}
 
-	public static MemberWrapper wrap(Method method) {
+	public static MemberAdapter wrap(Method method) {
 		return new MethodWrapper(method);
 	}
 
-	public static MemberWrapper wrap(Field field) {
+	public static MemberAdapter wrap(Field field) {
 		return new FieldWrapper(field);
 	}
 	
 	public abstract <T extends Annotation> T getAnnotation(Class<T> annotation);
 	public abstract Class<?> getType();
+	public abstract Object getValue(Object target) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException;
+	
+	@Override
+	public final String toString() {
+		return member.toString();
+	}
 	
 	public final int getModifiers() {
 		return member.getModifiers();
 	}
 	
-	private static class MethodWrapper extends MemberWrapper {
+	private static class MethodWrapper extends MemberAdapter {
 		private final Method method;
 		
 		public MethodWrapper(Method method) {
@@ -44,9 +51,14 @@ public abstract class MemberWrapper {
 		public Class<?> getType() {
 			return method.getReturnType();
 		}
+
+		@Override
+		public Object getValue(Object target) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+			return method.invoke(target);
+		}
 	}
 	
-	private static class FieldWrapper extends MemberWrapper {
+	private static class FieldWrapper extends MemberAdapter {
 		private final Field field;
 	
 		public FieldWrapper(Field field) {
@@ -62,6 +74,11 @@ public abstract class MemberWrapper {
 		@Override
 		public Class<?> getType() {
 			return field.getType();
+		}
+
+		@Override
+		public Object getValue(Object target) throws IllegalArgumentException, IllegalAccessException {
+			return field.get(target);
 		}
 	}
 }
