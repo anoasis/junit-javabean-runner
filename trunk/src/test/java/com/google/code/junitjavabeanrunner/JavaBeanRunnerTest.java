@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 
 import java.lang.annotation.RetentionPolicy;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -87,48 +88,23 @@ public class JavaBeanRunnerTest {
 	
 	@Test
 	public void descriptionHasOneChildPerProperty() throws Throwable {
-		Runner runner = new JavaBeanRunner(Simple.class);
-		assertEquals(1, runner.getDescription().getChildren().size());
+		Runner runner = new JavaBeanRunner(ComplexBeanTest.class);
+		assertEquals(2, runner.getDescription().getChildren().size());
 	}
 	
-	@Test(expected=InitializationError.class)
-	public void nonPublicPropertyMethodThrowsInitializationError() throws Throwable {
-		new JavaBeanRunner(NonPublicPropertyMethod.class);
-	}
-	
-	@Test(expected=InitializationError.class)
-	public void voidPropertyMethodThrowsInitializationError() throws Throwable {
-		new JavaBeanRunner(VoidPropertyMethod.class);
-	}
-	
-	@Test(expected=InitializationError.class)
-	public void propertyMethodWithInvalidNameThrowsInitializationError() throws Throwable {
-		new JavaBeanRunner(InvalidNamePropertyMethod.class);
-	}
-	
-	@Test(expected=InitializationError.class)
-	public void nonMatchingPropertyMethodThrowsInitializationError() throws Throwable {
-		new JavaBeanRunner(NonMatchingPropertyMethod.class);
-	}
-	
-	@Test(expected=InitializationError.class)
-	public void nonPublicPropertyFieldThrowsInitializationError() throws Throwable {
-		new JavaBeanRunner(NonPublicPropertyField.class);
-	}
-	
-	@Test(expected=InitializationError.class)
-	public void propertyFieldWithInvalidNameThrowsInitializationError() throws Throwable {
-		new JavaBeanRunner(InvalidNamePropertyField.class);
-	}
-	
-	@Test(expected=InitializationError.class)
-	public void nonMatchingPropertyFieldThrowsInitializationError() throws Throwable {
-		new JavaBeanRunner(NonMatchingPropertyField.class);
-	}
-	
-	@Test(expected=InitializationError.class)
-	public void duplicatePropertyMembersThrowsInitializationError() throws Throwable {
-		new JavaBeanRunner(DuplicatePropertyMembers.class);
+	@Test
+	public void childWithoutPropertyAnnotationIsIgnored() throws Throwable {
+		Runner runner = new JavaBeanRunner(MissingMatchingPropertyAnnotations.class);
+		Description desc = runner.getDescription();
+		
+		RunNotifier notifier = mock(RunNotifier.class);
+		runner.run(notifier);
+		
+		verify(notifier).fireTestStarted(desc);
+		for (Description child : desc.getChildren()) {
+			verify(notifier).fireTestIgnored(child);
+		}
+		verify(notifier).fireTestFinished(desc);
 	}
 	
 	@Test
@@ -263,6 +239,13 @@ public class JavaBeanRunnerTest {
 	@Fixture(SimpleBean.class)
 	private static class NoPropertyAnnotations {
 		public Integer name = new Integer(1);
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	@Fixture(ComplexBean.class)
+	public static class MissingMatchingPropertyAnnotations {
+		@Property("example")
+		public String name = "name";
 	}
 	
 	@RunWith(JavaBeanRunner.class)

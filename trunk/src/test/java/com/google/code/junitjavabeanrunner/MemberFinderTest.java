@@ -39,6 +39,18 @@ public class MemberFinderTest {
 	}
 	
 	@Test
+	public void singleNonPublicMethodAnnotationFindsNoUsableMember() {
+		MemberFinder finder = new MemberFinder(SingleNonPublicMethodAnnotation.class);
+		assertTrue(finder.findMembers().isEmpty());
+	}
+	
+	@Test
+	public void singleNonPublicFieldAnnotationFindsNoUsableMember() {
+		MemberFinder finder = new MemberFinder(SingleNonPublicFieldAnnotation.class);
+		assertTrue(finder.findMembers().isEmpty());
+	}
+	
+	@Test
 	public void fieldWithoutAnnotationFindsNoUsableMembers() {
 		MemberFinder finder = new MemberFinder(SingleFieldWithoutAnnotation.class);
 		assertTrue(finder.findMembers().isEmpty());
@@ -50,6 +62,12 @@ public class MemberFinderTest {
 		assertEquals(1, finder.findMembers().size());
 	}
 	
+	@Test(expected=IllegalStateException.class)
+	public void duplicateMembersThrowsIllegalStateException() {
+		MemberFinder finder = new MemberFinder(DuplicateMemberAnnotation.class);
+		finder.findMembers();
+	}
+	
 	public static class NoMembers {
 	}
 	
@@ -58,6 +76,16 @@ public class MemberFinderTest {
 		public String getName() {
 			return "name";
 		}
+	}
+	
+	public static class DuplicateMemberAnnotation {
+		@Property("name")
+		public String getName() {
+			return "name";
+		}
+		
+		@Property("name")
+		public String name = "name";
 	}
 	
 	public static class SingleVoidMethodAnnotation {
@@ -77,6 +105,18 @@ public class MemberFinderTest {
 		public String getName() {
 			return "name";
 		}
+	}
+	
+	public static class SingleNonPublicMethodAnnotation {
+		@Property("name")
+		String getName() {
+			return "name";
+		}
+	}
+	
+	public static class SingleNonPublicFieldAnnotation {
+		@Property("name")
+		String name = "name";
 	}
 	
 	public static class SingleFieldAnnotation {
