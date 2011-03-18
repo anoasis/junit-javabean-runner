@@ -4,21 +4,31 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
+@RunWith(Parameterized.class)
 public class MemberAdapterTest {
-	private Method method;
-	private Field field;
+	private MemberAdapter member;
 	
-	@Before
-	public void setUp() throws Throwable {
-		method = getClass().getMethod("example");
-		field = getClass().getField("example");
+	@Parameters
+	public static List<Object[]> getParameters() throws Throwable {
+		List<Object[]> params = new ArrayList<Object[]>();
+		
+		params.add(new Object[]{MemberAdapter.wrap(MemberAdapterTest.class.getMethod("example"))});
+		params.add(new Object[]{MemberAdapter.wrap(MemberAdapterTest.class.getField("example"))});
+		
+		return params;
+	}
+	
+	public MemberAdapterTest(MemberAdapter member) {
+		this.member = member;
 	}
 	
 	@Deprecated
@@ -30,48 +40,22 @@ public class MemberAdapterTest {
 	public int example = 1;
 	
 	@Test
-	public void memberWrapperAcceptsMethod() throws Throwable {
-		MemberAdapter.wrap(method);
-	}
-	
-	@Test
-	public void memberWrapperAcceptsField() throws Throwable {
-		MemberAdapter.wrap(field);
-	}
-	
-	@Test
 	public void memberAnnotationsFound() throws Throwable {
-		MemberAdapter wrapper = MemberAdapter.wrap(method);
-		assertTrue(instanceOf(Deprecated.class).matches(wrapper.getAnnotation(Deprecated.class)));
+		assertTrue(instanceOf(Deprecated.class).matches(member.getAnnotation(Deprecated.class)));
 	}
 	
 	@Test
-	public void fieldAnnotationsFound() throws Throwable {
-		MemberAdapter wrapper = MemberAdapter.wrap(field);
-		assertTrue(instanceOf(Deprecated.class).matches(wrapper.getAnnotation(Deprecated.class)));
+	public void memberType() throws Throwable {
+		assertEquals(int.class, member.getType());
 	}
 	
 	@Test
-	public void methodType() throws Throwable {
-		MemberAdapter wrapper = MemberAdapter.wrap(method);
-		assertEquals(int.class, wrapper.getType());
+	public void memberModifiers() throws Throwable {
+		assertTrue(Modifier.isPublic(member.getModifiers()));
 	}
 	
 	@Test
-	public void fieldType() throws Throwable {
-		MemberAdapter wrapper = MemberAdapter.wrap(field);
-		assertEquals(int.class, wrapper.getType());
-	}
-	
-	@Test
-	public void methodModifiers() throws Throwable {
-		MemberAdapter wrapper = MemberAdapter.wrap(method);
-		assertTrue(Modifier.isPublic(wrapper.getModifiers()));
-	}
-	
-	@Test
-	public void fieldModifiers() throws Throwable {
-		MemberAdapter wrapper = MemberAdapter.wrap(field);
-		assertTrue(Modifier.isPublic(wrapper.getModifiers()));
+	public void memberValue() throws Throwable {
+		assertEquals(1, member.getValue(this));
 	}
 }
