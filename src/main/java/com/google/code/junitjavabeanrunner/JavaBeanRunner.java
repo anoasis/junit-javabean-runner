@@ -35,7 +35,7 @@ public class JavaBeanRunner extends Runner {
 		properties = findMutableProperties(fixture);
 		memberMap = findMembers(testClass, properties);
 		constructor = findConstructor(fixture);
-		if (properties.isEmpty()) {
+		if (properties.isEmpty() || memberMap.isEmpty()) {
 			description = Description.EMPTY;
 		} else {
 			description = Description.createSuiteDescription(fixture);
@@ -70,13 +70,14 @@ public class JavaBeanRunner extends Runner {
 		
 		Map<String, MemberAdapter> memberMap = new HashMap<String, MemberAdapter>();
 		for (MemberAdapter member : members) {
-			if (isValidProperty(member, map)) {
-				Property prop = member.getAnnotation(Property.class);
-				if (memberMap.containsKey(prop.value())) {
-					throw new InitializationError("Duplicate property member found: " + member);
-				}
-				memberMap.put(prop.value(), member);
+			if (isValidProperty(member, map) == false) {
+				continue;
 			}
+			Property prop = member.getAnnotation(Property.class);
+			if (memberMap.containsKey(prop.value())) {
+				throw new InitializationError("Duplicate property member found: " + member);
+			}
+			memberMap.put(prop.value(), member);
 		}
 		
 		return memberMap;
@@ -94,9 +95,6 @@ public class JavaBeanRunner extends Runner {
 		Class<?> propType = map.get(propName);
 		if (propType.isAssignableFrom(member.getType()) == false) {
 			throw new InitializationError("Member type does not match property type");
-		}
-		if (member.getType().equals(void.class)) {
-			throw new InitializationError("Member type must not return void");
 		}
 		if (Modifier.isPublic(member.getModifiers()) == false) {
 			throw new InitializationError("Member must be public");
@@ -129,23 +127,9 @@ public class JavaBeanRunner extends Runner {
 	}
 
 	private Constructor<?> findConstructor(Class<?> fixtureClass) throws InitializationError {
-		if (fixtureClass.isInterface()) {
-			throw new InitializationError("Fixture should not be an interface");
-		}
-		if (fixtureClass.isArray()) {
-			throw new InitializationError("Fixture should not be an array");
-		}
-		if (fixtureClass.isEnum()) {
-			throw new InitializationError("Fixture should not be an enum");
-		}
-		if (fixtureClass.isPrimitive()) {
-			throw new InitializationError("Fixture should not be a primitive");
-		}
 		try {
-			return fixtureClass.getConstructor();
-		} catch (NoSuchMethodException e) {
-			throw new InitializationError(e);
-		} catch (SecurityException e) {
+			return new ConstructorFinder(fixtureClass).findConstructor();
+		} catch (IllegalArgumentException e) {
 			throw new InitializationError(e);
 		}
 	}
