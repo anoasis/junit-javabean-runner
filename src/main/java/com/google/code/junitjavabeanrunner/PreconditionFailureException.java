@@ -1,6 +1,6 @@
 package com.google.code.junitjavabeanrunner;
 
-public class PreconditionFailureException extends IllegalStateException {
+class PreconditionFailureException extends IllegalStateException {
 	/**
 	 * 
 	 */

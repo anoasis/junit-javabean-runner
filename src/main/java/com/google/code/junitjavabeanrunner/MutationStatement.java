@@ -1,14 +1,12 @@
 package com.google.code.junitjavabeanrunner;
 
+import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 
 import java.lang.reflect.Method;
 
-import org.hamcrest.Matcher;
-import static org.hamcrest.core.IsNot.*;
-import static org.hamcrest.core.IsEqual.*;
 import org.junit.runners.model.Statement;
 
 /**
@@ -19,7 +17,7 @@ import org.junit.runners.model.Statement;
  * Then the getter on the target
  * Then compares the values.
  */
-public class MutationStatement extends Statement {
+class MutationStatement extends Statement {
 	private final Object sourceValue;
 	private final Object target;
 	private final Method getter;
