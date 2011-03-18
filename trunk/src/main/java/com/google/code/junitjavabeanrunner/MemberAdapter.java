@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 
-public abstract class MemberAdapter {
+abstract class MemberAdapter {
 	private final Member member;
 	
 	public MemberAdapter(Member member) {
