@@ -1,8 +1,5 @@
 package com.google.code.junitjavabeanrunner;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.io.Serializable;
 import java.lang.annotation.RetentionPolicy;
 
