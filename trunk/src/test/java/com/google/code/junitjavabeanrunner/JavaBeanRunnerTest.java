@@ -80,6 +80,12 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@Test
+	public void testWithoutAnnotatedMembersHasEmptyDescription() throws Throwable {
+		Runner runner = new JavaBeanRunner(NoPropertyAnnotations.class);
+		assertEquals(Description.EMPTY, runner.getDescription());
+	}
+	
+	@Test
 	public void descriptionHasOneChildPerProperty() throws Throwable {
 		Runner runner = new JavaBeanRunner(Simple.class);
 		assertEquals(1, runner.getDescription().getChildren().size());
@@ -250,6 +256,12 @@ public class JavaBeanRunnerTest {
 	@Fixture(SimpleBean.class)
 	private static class NonMatchingPropertyField {
 		@Property("value")
+		public Integer name = new Integer(1);
+	}
+	
+	@RunWith(JavaBeanRunner.class)
+	@Fixture(SimpleBean.class)
+	private static class NoPropertyAnnotations {
 		public Integer name = new Integer(1);
 	}
 	
