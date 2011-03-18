@@ -28,11 +28,6 @@ abstract class MemberAdapter {
 		return new Class<?>[0];
 	}
 	
-	@Override
-	public final String toString() {
-		return member.toString();
-	}
-	
 	public final int getModifiers() {
 		return member.getModifiers();
 	}

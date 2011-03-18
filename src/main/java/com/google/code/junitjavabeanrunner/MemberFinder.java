@@ -2,8 +2,11 @@ package com.google.code.junitjavabeanrunner;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.code.junitjavabeanrunner.JavaBeanRunner.Property;
@@ -15,32 +18,38 @@ class MemberFinder {
 		this.type = type;
 	}
 
-	public Set<MemberAdapter> findMembers() {
-		Set<MemberAdapter> members = new HashSet<MemberAdapter>();
+	public Map<String, MemberAdapter> findMembers() throws IllegalStateException {
+		Set<MemberAdapter> set = new HashSet<MemberAdapter>();
+		Map<String, MemberAdapter> map = new HashMap<String, MemberAdapter>();
 		
 		for (Method method : type.getDeclaredMethods()) {
-			members.add(MemberAdapter.wrap(method));
+			set.add(MemberAdapter.wrap(method));
 		}
 		
 		for (Field field : type.getDeclaredFields()) {
-			members.add(MemberAdapter.wrap(field));
+			set.add(MemberAdapter.wrap(field));
 		}
 		
-		Iterator<MemberAdapter> iter = members.iterator();
-		while (iter.hasNext()) {
-			MemberAdapter member = iter.next();
+		for (MemberAdapter member : set) {
 			Property property = member.getAnnotation(Property.class);
 			if (property == null) {
-				iter.remove();
+				continue;
 			}
 			if (member.getType().equals(void.class)) {
-				iter.remove();
+				continue;
 			}
 			if (member.getParameterTypes().length > 0) {
-				iter.remove();
+				continue;
 			}
+			if (Modifier.isPublic(member.getModifiers()) == false) {
+				continue;
+			}
+			if (map.containsKey(property.value())) {
+				throw new IllegalStateException("Duplication property name: " + property.value());
+			}
+			map.put(property.value(), member);
 		}
 		
-		return members;
+		return map;
 	}
 }
