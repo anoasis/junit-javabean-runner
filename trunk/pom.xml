@@ -1,9 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.code.junit-javabean-runner</groupId>
   <artifactId>junit-javabean-runner</artifactId>
   <packaging>jar</packaging>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
   <name>junit-javabean-runner</name>
   <url>http://code.google.com/p/junit-javabean-runner/</url>
   <issueManagement>
@@ -11,9 +12,9 @@
   	<url>http://code.google.com/p/junit-javabean-runner/issues/list</url>
   </issueManagement>
   <scm>
-  	<connection>scm:svn:http://junit-javabean-runner.googlecode.com/svn/tags/junit-javabean-runner-1.0</connection>
-  	<developerConnection>scm:svn:https://junit-javabean-runner.googlecode.com/svn/tags/junit-javabean-runner-1.0</developerConnection>
-  	<url>http://code.google.com/p/junit-javabean-runner/source/browse/tags/junit-javabean-runner-1.0</url>
+  	<connection>scm:svn:http://junit-javabean-runner.googlecode.com/svn/trunk/</connection>
+  	<developerConnection>scm:svn:https://junit-javabean-runner.googlecode.com/svn/trunk/</developerConnection>
+  	<url>http://code.google.com/p/junit-javabean-runner/source/browse/</url>
   </scm>
   <build>
   	<pluginManagement>
