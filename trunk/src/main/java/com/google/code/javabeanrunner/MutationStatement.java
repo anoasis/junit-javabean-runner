@@ -1,4 +1,4 @@
-package com.google.code.junitjavabeanrunner;
+package com.google.code.javabeanrunner;
 
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.hamcrest.core.IsNot.not;

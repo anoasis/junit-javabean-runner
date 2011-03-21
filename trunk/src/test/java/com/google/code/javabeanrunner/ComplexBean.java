@@ -1,4 +1,4 @@
-package com.google.code.junitjavabeanrunner;
+package com.google.code.javabeanrunner;
 
 public class ComplexBean {
 	private String name;

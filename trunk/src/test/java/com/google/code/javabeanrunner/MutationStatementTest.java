@@ -1,4 +1,4 @@
-package com.google.code.junitjavabeanrunner;
+package com.google.code.javabeanrunner;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -11,6 +11,9 @@ import java.lang.reflect.Method;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runners.model.Statement;
+
+import com.google.code.javabeanrunner.MutationStatement;
+import com.google.code.javabeanrunner.PreconditionFailureException;
 
 public class MutationStatementTest {
 	private SimpleBean target;

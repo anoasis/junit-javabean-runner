@@ -1,11 +1,12 @@
-package com.google.code.junitjavabeanrunner;
+package com.google.code.javabeanrunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-import com.google.code.junitjavabeanrunner.JavaBeanRunner.Property;
+import com.google.code.javabeanrunner.MemberFinder;
+import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
 public class MemberFinderTest {
 	@Test

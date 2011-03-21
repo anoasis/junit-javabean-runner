@@ -1,4 +1,4 @@
-package com.google.code.junitjavabeanrunner;
+package com.google.code.javabeanrunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -16,8 +16,9 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.JUnit4;
 import org.junit.runners.model.InitializationError;
 
-import com.google.code.junitjavabeanrunner.JavaBeanRunner.Fixture;
-import com.google.code.junitjavabeanrunner.JavaBeanRunner.Property;
+import com.google.code.javabeanrunner.JavaBeanRunner;
+import com.google.code.javabeanrunner.JavaBeanRunner.Fixture;
+import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
 @SuppressWarnings("unused")
 @RunWith(JUnit4.class)

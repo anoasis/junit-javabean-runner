@@ -1,4 +1,4 @@
-package com.google.code.junitjavabeanrunner;
+package com.google.code.javabeanrunner;
 
 import java.lang.reflect.Constructor;
 
