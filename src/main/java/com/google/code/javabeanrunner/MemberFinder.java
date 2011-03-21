@@ -1,4 +1,4 @@
-package com.google.code.junitjavabeanrunner;
+package com.google.code.javabeanrunner;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.code.junitjavabeanrunner.JavaBeanRunner.Property;
+import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
 class MemberFinder {
 	private final Class<?> type;

@@ -1,8 +1,10 @@
-package com.google.code.junitjavabeanrunner;
+package com.google.code.javabeanrunner;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import com.google.code.javabeanrunner.PreconditionFailureException;
 
 public class PreconditionFailureExceptionTest {
 
