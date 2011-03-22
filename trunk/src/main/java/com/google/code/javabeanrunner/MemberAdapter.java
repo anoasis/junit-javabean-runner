@@ -23,7 +23,7 @@ abstract class MemberAdapter {
 	
 	public abstract <T extends Annotation> T getAnnotation(Class<T> annotation);
 	public abstract Class<?> getType();
-	public abstract Object getValue(Object target) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException;
+	public abstract Object value(Object target) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException;
 	public Class<?>[] getParameterTypes() {
 		return new Class<?>[0];
 	}
@@ -51,7 +51,7 @@ abstract class MemberAdapter {
 		}
 
 		@Override
-		public Object getValue(Object target) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		public Object value(Object target) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 			return method.invoke(target);
 		}
 		
@@ -80,7 +80,7 @@ abstract class MemberAdapter {
 		}
 
 		@Override
-		public Object getValue(Object target) throws IllegalArgumentException, IllegalAccessException {
+		public Object value(Object target) throws IllegalArgumentException, IllegalAccessException {
 			return field.get(target);
 		}
 	}

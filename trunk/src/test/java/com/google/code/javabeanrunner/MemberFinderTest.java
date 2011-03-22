@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
-public class MemberMapperTest {
+public class MemberFinderTest {
 	@Test
 	public void noMembersFindsNoUsableMembers() {
 		MemberMapper finder = new MemberMapper(NoMembers.class);
