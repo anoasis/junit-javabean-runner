@@ -9,12 +9,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.Statement;
@@ -72,7 +74,9 @@ public class JavaBeanRunner extends Runner {
 	private final Description description;
 	private final Map<String, MemberAdapter> memberMap;
 	private final Set<PropertyDescriptor> properties;
+	// FIXME: This is a naive concept
 	private final Set<Description> ignoreList;
+	private final Map<Description, Statement> stmtMap;
 	
 	/**
 	 * Creates a new instance of this runner for the given test class.
@@ -86,6 +90,7 @@ public class JavaBeanRunner extends Runner {
 		memberMap = findMembers(testClass, properties);
 		constructor = findConstructor(fixture);
 		ignoreList = new HashSet<Description>();
+		stmtMap = new HashMap<Description, Statement>();
 		
 		if (properties.isEmpty() || memberMap.isEmpty()) {
 			description = Description.EMPTY;
@@ -102,6 +107,7 @@ public class JavaBeanRunner extends Runner {
 					Object sourceValue = member.getValue(testClass.newInstance());
 					Object target = constructor.newInstance();
 					Statement stmt = new MutationStatement(sourceValue, target, prop.getReadMethod(), prop.getWriteMethod());
+					stmtMap.put(childDesc, stmt);
 				}
 			}
 		}
@@ -157,16 +163,28 @@ public class JavaBeanRunner extends Runner {
 	 */
 	@Override
 	public void run(RunNotifier notifier) {
-		notifier.fireTestStarted(description);
-		for (Description child : description.getChildren()) {
-			if (ignoreList.contains(child)) {
-				notifier.fireTestIgnored(child);
-			} else {
-				notifier.fireTestStarted(child);
-				notifier.fireTestFinished(child);
-			}
+		evaluate(description, notifier);
+	}
+	
+	private void evaluate(Description desc, RunNotifier notifier) {
+		notifier.fireTestStarted(desc);
+		for (Description child : desc.getChildren()) {
+			evaluate(child, notifier);
 		}
-		notifier.fireTestFinished(description);
+		if (ignoreList.contains(desc)) {
+			notifier.fireTestIgnored(desc);
+		} else if (stmtMap.containsKey(desc)) {
+			Statement stmt = stmtMap.get(desc);
+			try {
+				stmt.evaluate();
+				notifier.fireTestFinished(desc);
+			} catch (Throwable e) {
+				Failure failure = new Failure(desc, e);
+				notifier.fireTestFailure(failure);
+			}
+		} else {
+			notifier.fireTestFinished(desc);
+		}
 	}
 	
 	/**
