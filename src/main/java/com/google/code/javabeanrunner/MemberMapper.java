@@ -10,16 +10,15 @@ import java.util.Set;
 
 import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
-class MemberFinder {
-	private final Class<?> type;
+class MemberMapper {
+	private final Map<String, MemberAdapter> memberMap = new HashMap<String, MemberAdapter>();
 	
-	public MemberFinder(Class<?> type) {
-		this.type = type;
+	public MemberMapper(Class<?> type) {
+		init(type);
 	}
-
-	public Map<String, MemberAdapter> findMembers() throws IllegalStateException {
+	
+	private void init(Class<?> type) {
 		Set<MemberAdapter> set = new HashSet<MemberAdapter>();
-		Map<String, MemberAdapter> map = new HashMap<String, MemberAdapter>();
 		
 		for (Method method : type.getDeclaredMethods()) {
 			set.add(MemberAdapter.wrap(method));
@@ -43,12 +42,22 @@ class MemberFinder {
 			if (Modifier.isPublic(member.getModifiers()) == false) {
 				continue;
 			}
-			if (map.containsKey(property.value())) {
+			if (memberMap.containsKey(property.value())) {
 				throw new IllegalStateException("Duplication property name: " + property.value());
 			}
-			map.put(property.value(), member);
+			memberMap.put(property.value(), member);
 		}
-		
-		return map;
+	}
+
+	public boolean contains(String name) {
+		return memberMap.containsKey(name);
+	}
+	
+	public boolean isEmpty() {
+		return memberMap.isEmpty();
+	}
+
+	public MemberAdapter get(String name) {
+		return memberMap.get(name);
 	}
 }
