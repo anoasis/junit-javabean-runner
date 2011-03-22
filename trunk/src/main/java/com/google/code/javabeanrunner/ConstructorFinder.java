@@ -1,5 +1,6 @@
 package com.google.code.javabeanrunner;
 
+import java.beans.ConstructorProperties;
 import java.lang.reflect.Constructor;
 
 class ConstructorFinder {
@@ -22,10 +23,15 @@ class ConstructorFinder {
 		if (type.isPrimitive()) {
 			throw new IllegalArgumentException("Fixture should not be a primitive");
 		}
-		try {
-			return type.getConstructor();
-		} catch (NoSuchMethodException e) {
-			throw new IllegalArgumentException(e);
+		Constructor<?>[] ctors = type.getConstructors();
+		
+		for (Constructor<?> ctor : ctors) {
+			if (ctor.getParameterTypes().length == 0) {
+				return ctor;
+			} else if (ctor.getAnnotation(ConstructorProperties.class) != null) {
+				return ctor;
+			}
 		}
+		throw new IllegalArgumentException("No usable constructors");
 	}
 }
