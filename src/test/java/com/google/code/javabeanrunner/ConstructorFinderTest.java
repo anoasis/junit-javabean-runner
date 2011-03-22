@@ -1,11 +1,11 @@
 package com.google.code.javabeanrunner;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.io.Serializable;
 import java.lang.annotation.RetentionPolicy;
 
 import org.junit.Test;
-
-import com.google.code.javabeanrunner.ConstructorFinder;
 
 public class ConstructorFinderTest {
 	@Test(expected=IllegalArgumentException.class)
@@ -30,5 +30,11 @@ public class ConstructorFinderTest {
 	public void interfaceThrowsIllegalArgumentException() {
 		ConstructorFinder finder = new ConstructorFinder(Serializable.class);
 		finder.findConstructor();
+	}
+	
+	@Test
+	public void annotatedConstructorIsFound() {
+		ConstructorFinder finder = new ConstructorFinder(Point.class);
+		assertNotNull(finder.findConstructor());
 	}
 }
