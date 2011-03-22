@@ -104,7 +104,7 @@ public class JavaBeanRunner extends Runner {
 					ignoreList.add(childDesc);
 				} else {
 					MemberAdapter member = mapper.get(prop.getName());
-					Object sourceValue = member.getValue(testClass.newInstance());
+					Object sourceValue = member.value(testClass.newInstance());
 					Object target = constructor.newInstance();
 					Statement stmt = new MutationStatement(sourceValue, target, prop.getReadMethod(), prop.getWriteMethod());
 					stmtMap.put(childDesc, stmt);

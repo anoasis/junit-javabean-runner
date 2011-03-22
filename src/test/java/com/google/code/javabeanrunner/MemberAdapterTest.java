@@ -58,7 +58,7 @@ public class MemberAdapterTest {
 	
 	@Test
 	public void memberValue() throws Throwable {
-		assertEquals(1, member.getValue(this));
+		assertEquals(1, member.value(this));
 	}
 	
 	@Test
