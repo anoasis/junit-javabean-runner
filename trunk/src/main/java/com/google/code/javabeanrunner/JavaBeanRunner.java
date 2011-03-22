@@ -72,7 +72,6 @@ public class JavaBeanRunner extends Runner {
 	private final Class<?> fixture;
 	private final Constructor<?> constructor;
 	private final Description description;
-	private final Map<String, MemberAdapter> memberMap;
 	private final Set<PropertyDescriptor> properties;
 	// FIXME: This is a naive concept
 	private final Set<Description> ignoreList;
@@ -87,12 +86,13 @@ public class JavaBeanRunner extends Runner {
 	public JavaBeanRunner(Class<?> testClass) throws Throwable {
 		fixture = findFixture(testClass);
 		properties = findMutableProperties(fixture);
-		memberMap = findMembers(testClass, properties);
 		constructor = findConstructor(fixture);
 		ignoreList = new HashSet<Description>();
 		stmtMap = new HashMap<Description, Statement>();
 		
-		if (properties.isEmpty() || memberMap.isEmpty()) {
+		MemberMapper mapper = new MemberMapper(testClass);
+		
+		if (properties.isEmpty() || mapper.isEmpty()) {
 			description = Description.EMPTY;
 		} else {
 			description = Description.createSuiteDescription(testClass);
@@ -100,10 +100,10 @@ public class JavaBeanRunner extends Runner {
 				Description childDesc = Description.createTestDescription(fixture, prop.getName());
 				description.addChild(childDesc);
 				
-				if (memberMap.containsKey(prop.getName()) == false) {
+				if (mapper.contains(prop.getName()) == false) {
 					ignoreList.add(childDesc);
 				} else {
-					MemberAdapter member = memberMap.get(prop.getName());
+					MemberAdapter member = mapper.get(prop.getName());
 					Object sourceValue = member.getValue(testClass.newInstance());
 					Object target = constructor.newInstance();
 					Statement stmt = new MutationStatement(sourceValue, target, prop.getReadMethod(), prop.getWriteMethod());
@@ -111,11 +111,6 @@ public class JavaBeanRunner extends Runner {
 				}
 			}
 		}
-	}
-	
-	private Map<String, MemberAdapter> findMembers(Class<?> testClass, Set<PropertyDescriptor> props) throws InitializationError {
-		MemberFinder finder = new MemberFinder(testClass);
-		return finder.findMembers();
 	}
 	
 	private Set<PropertyDescriptor> findMutableProperties(Class<?> fixtureClass) throws InitializationError {
