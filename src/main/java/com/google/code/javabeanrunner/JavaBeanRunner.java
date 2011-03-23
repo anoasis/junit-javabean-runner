@@ -29,19 +29,9 @@ import org.junit.runners.model.Statement;
  * will attempt to determine if the class getter and setter methods (a.k.a. accessors and mutators)
  * behave correctly by comparing the property value before and after the setter has been invoked.
  * <p>
- * In cases where properties are of primitive type (e.g. int, boolean), the runner will use a non-default
- * value ({@code MAX_VALUE} for byte, char, short, int, long, float and double; and {@code true} for 
- * boolean) to test correctness.  In cases where properties are objects, the runner will attempt to 
- * construct an object by invoking the no-arg constructor of the property class where appropriate.
- * <p>
- * This behaviour can be overridden by annotating fields and methods in the test class using the
- * {@link Property Property} annotation with a value of the property name.  If the class under test
- * uses an object which does not provide a no-arg constructor (e.g. {@link java.awt.Point}), failure
- * to provide a member annotated with {@link Property Property} will result in that property being
- * ignored (similar to using the JUnit {@link org.junit.Ignore Ignore} annotation).  Properties will 
- * also be ignored if the default primitive property value is identical to the  value used by the 
- * runner.  Note that this will not occur where no value is assigned in the field  declaration or 
- * bean constructor. 
+ * Property values must be supplied by annotating fields and methods in the test class using the
+ * {@link Property Property} annotation with a value of the property name.  Failure to provide a 
+ * property value will result in a test failure for that property.
  * <p>
  * The following snippet shows typical usage for the following bean:
  * 
@@ -90,25 +80,19 @@ public class JavaBeanRunner extends Runner {
 		ignoreList = new HashSet<Description>();
 		stmtMap = new HashMap<Description, Statement>();
 		
-		MemberMapper mapper = new MemberMapper(testClass);
+		PropertyDataSource dataSource = new PropertyDataSource(testClass.newInstance());
 		
-		if (properties.isEmpty() || mapper.isEmpty()) {
+		if (properties.isEmpty() || dataSource.isEmpty()) {
 			description = Description.EMPTY;
 		} else {
 			description = Description.createSuiteDescription(testClass);
 			for (PropertyDescriptor prop : properties) {
 				Description childDesc = Description.createTestDescription(fixture, prop.getName());
 				description.addChild(childDesc);
-				
-				if (mapper.contains(prop.getName()) == false) {
-					ignoreList.add(childDesc);
-				} else {
-					MemberAdapter member = mapper.get(prop.getName());
-					Object sourceValue = member.value(testClass.newInstance());
-					Object target = constructor.newInstance();
-					Statement stmt = new MutationStatement(sourceValue, target, prop.getReadMethod(), prop.getWriteMethod());
-					stmtMap.put(childDesc, stmt);
-				}
+		
+				Object target = constructor.newInstance();
+				Statement stmt = new MutationStatement(dataSource, prop, target);
+				stmtMap.put(childDesc, stmt);
 			}
 		}
 	}
@@ -166,9 +150,7 @@ public class JavaBeanRunner extends Runner {
 		for (Description child : desc.getChildren()) {
 			evaluate(child, notifier);
 		}
-		if (ignoreList.contains(desc)) {
-			notifier.fireTestIgnored(desc);
-		} else if (stmtMap.containsKey(desc)) {
+		if (stmtMap.containsKey(desc)) {
 			Statement stmt = stmtMap.get(desc);
 			try {
 				stmt.evaluate();

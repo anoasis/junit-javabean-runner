@@ -1,71 +1,71 @@
 package com.google.code.javabeanrunner;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
-public class MemberFinderTest {
+public class PropertyDataSourceTest {
 	@Test
 	public void noMembersFindsNoUsableMembers() {
-		MemberMapper finder = new MemberMapper(NoMembers.class);
+		PropertyDataSource finder = new PropertyDataSource(NoMembers.class);
 		assertTrue(finder.isEmpty());
 	}
 	
 	@Test
 	public void methodWithoutAnnotationFindsNoUsableMembers() {
-		MemberMapper finder = new MemberMapper(SingleMethodWithoutAnnotation.class);
+		PropertyDataSource finder = new PropertyDataSource(new SingleMethodWithoutAnnotation());
 		assertTrue(finder.isEmpty());
 	}
 	
 	@Test
 	public void methodAnnotationFindsOneUsableMember() {
-		MemberMapper finder = new MemberMapper(SingleMethodAnnotation.class);
-		assertNotNull(finder.get("name"));
+		PropertyDataSource finder = new PropertyDataSource(new SingleMethodAnnotation());
+		assertEquals("name", finder.valueOf("name"));
 	}
 	
 	@Test
 	public void singleVoidMethodAnnotationFindsNoUsableMember() {
-		MemberMapper finder = new MemberMapper(SingleVoidMethodAnnotation.class);
+		PropertyDataSource finder = new PropertyDataSource(new SingleVoidMethodAnnotation());
 		assertTrue(finder.isEmpty());
 	}
 	
 	@Test
 	public void singleParameterizedMethodAnnotationFindsNoUsableMember() {
-		MemberMapper finder = new MemberMapper(SingleParameterizedMethodAnnotation.class);
+		PropertyDataSource finder = new PropertyDataSource(new SingleParameterizedMethodAnnotation());
 		assertTrue(finder.isEmpty());
 	}
 	
 	@Test
 	public void singleNonPublicMethodAnnotationFindsNoUsableMember() {
-		MemberMapper finder = new MemberMapper(SingleNonPublicMethodAnnotation.class);
+		PropertyDataSource finder = new PropertyDataSource(new SingleNonPublicMethodAnnotation());
 		assertTrue(finder.isEmpty());
 	}
 	
 	@Test
 	public void singleNonPublicFieldAnnotationFindsNoUsableMember() {
-		MemberMapper finder = new MemberMapper(SingleNonPublicFieldAnnotation.class);
+		PropertyDataSource finder = new PropertyDataSource(new SingleNonPublicFieldAnnotation());
 		assertTrue(finder.isEmpty());
 	}
 	
 	@Test
 	public void fieldWithoutAnnotationFindsNoUsableMembers() {
-		MemberMapper finder = new MemberMapper(SingleFieldWithoutAnnotation.class);
+		PropertyDataSource finder = new PropertyDataSource(new SingleFieldWithoutAnnotation());
 		assertTrue(finder.isEmpty());
 	}
 	
 	@Test
 	public void fieldAnnotationFindsOneUsableMember() {
-		MemberMapper finder = new MemberMapper(SingleFieldAnnotation.class);
-		assertNotNull(finder.get("name"));
+		PropertyDataSource finder = new PropertyDataSource(new SingleFieldAnnotation());
+		assertEquals("name", finder.valueOf("name"));
 	}
 	
 	@Test(expected=IllegalStateException.class)
 	public void duplicateMembersThrowsIllegalStateException() {
-		MemberMapper finder = new MemberMapper(DuplicateMemberAnnotation.class);
-		assertNotNull(finder.get("name"));
+		PropertyDataSource finder = new PropertyDataSource(new DuplicateMemberAnnotation());
+		assertEquals("name", finder.valueOf("name"));
 	}
 	
 	public static class NoMembers {

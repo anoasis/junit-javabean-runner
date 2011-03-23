@@ -1,6 +1,7 @@
 package com.google.code.javabeanrunner;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -10,11 +11,13 @@ import java.util.Set;
 
 import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
-class MemberMapper {
+class PropertyDataSource {
+	private final Object source;
 	private final Map<String, MemberAdapter> memberMap = new HashMap<String, MemberAdapter>();
 	
-	public MemberMapper(Class<?> type) {
-		init(type);
+	public PropertyDataSource(Object source) {
+		this.source = source;
+		init(source.getClass());
 	}
 	
 	private void init(Class<?> type) {
@@ -56,8 +59,14 @@ class MemberMapper {
 	public boolean isEmpty() {
 		return memberMap.isEmpty();
 	}
-
-	public MemberAdapter get(String name) {
-		return memberMap.get(name);
+	
+	public Object valueOf(String name) {
+		try {
+			return memberMap.get(name).value(source);
+		} catch (IllegalAccessException e) {
+			throw new IllegalArgumentException(e);
+		} catch (InvocationTargetException e) {
+			throw new IllegalArgumentException(e);
+		}
 	}
 }
