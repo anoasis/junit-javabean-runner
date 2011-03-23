@@ -2,21 +2,24 @@ package com.google.code.javabeanrunner;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runner.Runner;
+import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.JUnit4;
 import org.junit.runners.model.InitializationError;
+import org.mockito.ArgumentCaptor;
 
-import com.google.code.javabeanrunner.JavaBeanRunner;
 import com.google.code.javabeanrunner.JavaBeanRunner.Fixture;
 import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
@@ -94,7 +97,7 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@Test
-	public void childWithoutPropertyAnnotationIsIgnored() throws Throwable {
+	public void childWithoutPropertyAnnotationFails() throws Throwable {
 		Runner runner = new JavaBeanRunner(MissingMatchingPropertyAnnotations.class);
 		Description desc = runner.getDescription();
 		
@@ -102,8 +105,11 @@ public class JavaBeanRunnerTest {
 		runner.run(notifier);
 		
 		verify(notifier).fireTestStarted(desc);
-		for (Description child : desc.getChildren()) {
-			verify(notifier).fireTestIgnored(child);
+		ArgumentCaptor<Failure> argument = ArgumentCaptor.forClass(Failure.class);
+		verify(notifier, times(2)).fireTestFailure(argument.capture());
+		List<Failure> failures = argument.getAllValues();
+		for (Failure failure : failures) {
+			assertTrue(desc.getChildren().contains(failure.getDescription()));
 		}
 		verify(notifier).fireTestFinished(desc);
 	}
@@ -160,7 +166,7 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	@Fixture(EmptyBean.class)
-	private static class Empty {
+	public static class Empty {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
@@ -177,7 +183,7 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	@Fixture(ReadOnlyBean.class)
-	private static class ReadOnly {
+	public static class ReadOnly {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
@@ -238,7 +244,7 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	@Fixture(SimpleBean.class)
-	private static class NoPropertyAnnotations {
+	public static class NoPropertyAnnotations {
 		public Integer name = new Integer(1);
 	}
 	

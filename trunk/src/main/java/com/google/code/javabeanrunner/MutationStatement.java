@@ -5,6 +5,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 
 import org.junit.runners.model.Statement;
@@ -18,16 +19,18 @@ import org.junit.runners.model.Statement;
  * Then compares the values.
  */
 class MutationStatement extends Statement {
-	private final Object sourceValue;
+	private final PropertyDataSource dataSource;
+	private final PropertyDescriptor property;
 	private final Object target;
 	private final Method getter;
 	private final Method setter;
 	
-	public MutationStatement(Object sourceValue, Object target, Method getter, Method setter) {
-		this.sourceValue = sourceValue;
+	public MutationStatement(PropertyDataSource dataSource, PropertyDescriptor property, Object target) {
+		this.dataSource = dataSource;
+		this.property = property;
 		this.target = target;
-		this.getter = getter;
-		this.setter = setter;
+		this.getter = property.getReadMethod();
+		this.setter = property.getWriteMethod();
 	}
 	
 	/**
@@ -35,11 +38,14 @@ class MutationStatement extends Statement {
 	 */
 	@Override
 	public void evaluate() throws PreconditionFailureException, AssertionError {
+		if (dataSource.contains(property.getName()) == false) {
+			throw new PreconditionFailureException("No property annotation for " + property.getName());
+		}
 		try {
 			Object originValue = getter.invoke(target);
-			setter.invoke(target, sourceValue);
+			setter.invoke(target, dataSource.valueOf(property.getName()));
 			Object targetValue = getter.invoke(target);
-			assertEquals(sourceValue, targetValue);
+			assertEquals(dataSource.valueOf(property.getName()), targetValue);
 			assertThat(originValue, not(equalTo(targetValue)));
 		} catch (Exception e) {
 			throw new PreconditionFailureException(e);
