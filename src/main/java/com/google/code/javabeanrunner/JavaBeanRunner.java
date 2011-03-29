@@ -25,15 +25,17 @@ import org.junit.runners.model.Statement;
  * This class is a JUnit {@link org.junit.runner.Runner} implementation used for testing 
  * JavaBeans&trade; and POJOs.
  * <p>
- * The JavaBean under test is identified by the {@link Fixture Fixture} annotation.  The runner
- * will attempt to determine if the class getter and setter methods (a.k.a. accessors and mutators)
- * behave correctly by comparing the property value before and after the setter has been invoked.
+ * The JavaBean under test is identified by the {@link Bean Bean} annotation.  The runner
+ * will attempt to determine validity for a property by:
+ * <ol>
+ *    <li>invoking the property setter with a provided value</li>
+ *    <li>invoking the property getter and comparing it against the provided value</li>
+ * </ol>
+ * The runner will search the test class for {@link Property Property}-annotated fields and 
+ * methods.  If no fields or methods are found, the runner is unable to test that property,
+ * and declares that property a test failure. 
  * <p>
- * Property values must be supplied by annotating fields and methods in the test class using the
- * {@link Property Property} annotation with a value of the property name.  Failure to provide a 
- * property value will result in a test failure for that property.
- * <p>
- * The following snippet shows typical usage for the following bean:
+ * The following snippet shows a JavaBean:
  * 
  * <pre>
  * public class Bean {
@@ -47,9 +49,11 @@ import org.junit.runners.model.Statement;
  *         this.name = name;
  *     }
  * }
- * 
+ * </pre>
+ * and the test class used to test that bean:
+ * <pre>
  * &#64;RunWith(JavaBeanRunner.class)
- * &#64;Fixture(Bean.class)
+ * &#64;Bean(Bean.class)
  * public BeanTest {
  *     &#64;Property("name")
  *     public String name = "example";
@@ -63,8 +67,6 @@ public class JavaBeanRunner extends Runner {
 	private final Constructor<?> constructor;
 	private final Description description;
 	private final Set<PropertyDescriptor> properties;
-	// FIXME: This is a naive concept
-	private final Set<Description> ignoreList;
 	private final Map<Description, Statement> stmtMap;
 	
 	/**
@@ -77,7 +79,6 @@ public class JavaBeanRunner extends Runner {
 		fixture = findFixture(testClass);
 		properties = findMutableProperties(fixture);
 		constructor = findConstructor(fixture);
-		ignoreList = new HashSet<Description>();
 		stmtMap = new HashMap<Description, Statement>();
 		
 		PropertyDataSource dataSource = new PropertyDataSource(testClass.newInstance());
@@ -114,7 +115,7 @@ public class JavaBeanRunner extends Runner {
 	}
 
 	private Class<?> findFixture(Class<?> testClass) throws InitializationError {
-		Fixture fixture = testClass.getAnnotation(Fixture.class);
+		Bean fixture = testClass.getAnnotation(Bean.class);
 		if (fixture == null) {
 			throw new InitializationError("Fixture annotation not present");
 		}
@@ -167,19 +168,28 @@ public class JavaBeanRunner extends Runner {
 	/**
 	 * This annotation is used for identifying the JavaBean under test.
 	 * <p>
-	 * The bean identified by this annotation is introspected for compliance with the
-	 * JavaBeans&trade; specification.
+	 * The bean identified by this annotation must have a no-argument constructor
+	 * and have at least one mutable property that follows the naming pattern
+	 * of the JavaBeans&trade; specification.
 	 * 
 	 * @author David Grant
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ElementType.TYPE})
-	public @interface Fixture {
+	public @interface Bean {
 		Class<?> value();
 	}
 	
 	/**
 	 * This annotation is used for providing property test parameters.
+	 * <p>
+	 * The {@link JavaBeanRunner} will inspect the fields and methods of the test 
+	 * class for this annotation (in that order), and will ignore all duplicates.  If
+	 * a property annotation is declared for a non-existing property, it will also
+	 * be ignored.
+	 * <p>
+	 * The field type or method return type must be valid types for the bean
+	 * property, or the property test will fail.
 	 * 
 	 * @author David Grant
 	 */

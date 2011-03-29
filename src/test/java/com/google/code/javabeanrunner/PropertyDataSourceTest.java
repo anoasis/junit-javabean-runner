@@ -62,10 +62,10 @@ public class PropertyDataSourceTest {
 		assertEquals("name", finder.valueOf("name"));
 	}
 	
-	@Test(expected=IllegalStateException.class)
-	public void duplicateMembersThrowsIllegalStateException() {
+	@Test
+	public void duplicateMembersUsesFieldFirst() {
 		PropertyDataSource finder = new PropertyDataSource(new DuplicateMemberAnnotation());
-		assertEquals("name", finder.valueOf("name"));
+		assertEquals("field-name", finder.valueOf("name"));
 	}
 	
 	public static class NoMembers {
@@ -81,11 +81,11 @@ public class PropertyDataSourceTest {
 	public static class DuplicateMemberAnnotation {
 		@Property("name")
 		public String getName() {
-			return "name";
+			return "method-name";
 		}
 		
 		@Property("name")
-		public String name = "name";
+		public String name = "field-name";
 	}
 	
 	public static class SingleVoidMethodAnnotation {

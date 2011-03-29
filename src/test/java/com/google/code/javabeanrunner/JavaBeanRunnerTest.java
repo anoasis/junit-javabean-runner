@@ -20,7 +20,7 @@ import org.junit.runners.JUnit4;
 import org.junit.runners.model.InitializationError;
 import org.mockito.ArgumentCaptor;
 
-import com.google.code.javabeanrunner.JavaBeanRunner.Fixture;
+import com.google.code.javabeanrunner.JavaBeanRunner.Bean;
 import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
 @SuppressWarnings("unused")
@@ -135,59 +135,59 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(Comparable.class)
+	@Bean(Comparable.class)
 	private static class InterfaceFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(Object[].class)
+	@Bean(Object[].class)
 	private static class ArrayFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(RetentionPolicy.class)
+	@Bean(RetentionPolicy.class)
 	private static class EnumFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(boolean.class)
+	@Bean(boolean.class)
 	private static class PrimitiveFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(Class.class)
+	@Bean(Class.class)
 	private static class PrivateConstructor {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(Boolean.class)
+	@Bean(Boolean.class)
 	private static class ParameterizedConstructor {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(EmptyBean.class)
+	@Bean(EmptyBean.class)
 	public static class Empty {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	public static class Simple {
 		@Property("value")
 		public String value = "value";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(Object.class)
+	@Bean(Object.class)
 	private static class ObjectTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(ReadOnlyBean.class)
+	@Bean(ReadOnlyBean.class)
 	public static class ReadOnly {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	private static class NonPublicPropertyMethod {
 		@Property("value")
 		private String getName() {
@@ -196,7 +196,7 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	private static class VoidPropertyMethod {
 		@Property("value")
 		public void getName() {
@@ -204,7 +204,7 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	private static class InvalidNamePropertyMethod {
 		@Property("foo")
 		public String getName() {
@@ -213,7 +213,7 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	private static class NonMatchingPropertyMethod {
 		@Property("value")
 		public Integer getValue() {
@@ -222,41 +222,41 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	private static class NonPublicPropertyField {
 		@Property("value")
 		private String name = "name";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	private static class InvalidNamePropertyField {
 		@Property("foo")
 		public String name = "name";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	private static class NonMatchingPropertyField {
 		@Property("value")
 		public Integer name = new Integer(1);
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	public static class NoPropertyAnnotations {
 		public Integer name = new Integer(1);
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(ComplexBean.class)
+	@Bean(ComplexBean.class)
 	public static class MissingMatchingPropertyAnnotations {
 		@Property("example")
 		public String name = "name";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	@Fixture(SimpleBean.class)
+	@Bean(SimpleBean.class)
 	private static class DuplicatePropertyMembers {
 		@Property("value")
 		public String value = "value";
