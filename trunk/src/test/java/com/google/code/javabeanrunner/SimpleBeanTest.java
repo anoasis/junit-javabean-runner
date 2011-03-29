@@ -3,9 +3,9 @@ package com.google.code.javabeanrunner;
 import org.junit.runner.RunWith;
 
 import com.google.code.javabeanrunner.JavaBeanRunner;
-import com.google.code.javabeanrunner.JavaBeanRunner.Fixture;
+import com.google.code.javabeanrunner.JavaBeanRunner.Bean;
 
 @RunWith(JavaBeanRunner.class)
-@Fixture(SimpleBean.class)
+@Bean(SimpleBean.class)
 public class SimpleBeanTest {
 }

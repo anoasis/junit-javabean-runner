@@ -1,13 +1,12 @@
 package com.google.code.javabeanrunner;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
@@ -21,14 +20,14 @@ class PropertyDataSource {
 	}
 	
 	private void init(Class<?> type) {
-		Set<MemberAdapter> set = new HashSet<MemberAdapter>();
-		
-		for (Method method : type.getDeclaredMethods()) {
-			set.add(MemberAdapter.wrap(method));
-		}
+		List<MemberAdapter> set = new ArrayList<MemberAdapter>();
 		
 		for (Field field : type.getDeclaredFields()) {
 			set.add(MemberAdapter.wrap(field));
+		}
+		
+		for (Method method : type.getDeclaredMethods()) {
+			set.add(MemberAdapter.wrap(method));
 		}
 		
 		for (MemberAdapter member : set) {
@@ -46,7 +45,7 @@ class PropertyDataSource {
 				continue;
 			}
 			if (memberMap.containsKey(property.value())) {
-				throw new IllegalStateException("Duplication property name: " + property.value());
+				continue;
 			}
 			memberMap.put(property.value(), member);
 		}
@@ -63,9 +62,7 @@ class PropertyDataSource {
 	public Object valueOf(String name) {
 		try {
 			return memberMap.get(name).value(source);
-		} catch (IllegalAccessException e) {
-			throw new IllegalArgumentException(e);
-		} catch (InvocationTargetException e) {
+		} catch (Exception e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
