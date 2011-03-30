@@ -83,7 +83,7 @@ public class JavaBeanRunner extends Runner {
 		
 		PropertyDataSource dataSource = new PropertyDataSource(testClass.newInstance());
 		
-		if (properties.isEmpty() || dataSource.isEmpty()) {
+		if (properties.isEmpty()) {
 			description = Description.EMPTY;
 		} else {
 			description = Description.createSuiteDescription(testClass);

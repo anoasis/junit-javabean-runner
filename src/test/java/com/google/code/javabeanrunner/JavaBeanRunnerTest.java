@@ -85,12 +85,6 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@Test
-	public void testWithoutAnnotatedMembersHasEmptyDescription() throws Throwable {
-		Runner runner = new JavaBeanRunner(NoPropertyAnnotations.class);
-		assertEquals(Description.EMPTY, runner.getDescription());
-	}
-	
-	@Test
 	public void descriptionHasOneChildPerProperty() throws Throwable {
 		Runner runner = new JavaBeanRunner(ComplexBeanTest.class);
 		assertEquals(2, runner.getDescription().getChildren().size());
@@ -131,64 +125,64 @@ public class JavaBeanRunnerTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
-	private static class MissingFixture {
+	static class MissingFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(Comparable.class)
-	private static class InterfaceFixture {
+	static class InterfaceFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(Object[].class)
-	private static class ArrayFixture {
+	static class ArrayFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(RetentionPolicy.class)
-	private static class EnumFixture {
+	static class EnumFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(boolean.class)
-	private static class PrimitiveFixture {
+	static class PrimitiveFixture {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(Class.class)
-	private static class PrivateConstructor {
+	static class PrivateConstructor {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(Boolean.class)
-	private static class ParameterizedConstructor {
+	static class ParameterizedConstructor {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(EmptyBean.class)
-	public static class Empty {
+	static class Empty {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	public static class Simple {
+	static class Simple {
 		@Property("value")
 		public String value = "value";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(Object.class)
-	private static class ObjectTest {
+	static class ObjectTest {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(ReadOnlyBean.class)
-	public static class ReadOnly {
+	static class ReadOnly {
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	private static class NonPublicPropertyMethod {
+	static class NonPublicPropertyMethod {
 		@Property("value")
 		private String getName() {
 			return "name";
@@ -197,7 +191,7 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	private static class VoidPropertyMethod {
+	static class VoidPropertyMethod {
 		@Property("value")
 		public void getName() {
 		}
@@ -205,7 +199,7 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	private static class InvalidNamePropertyMethod {
+	static class InvalidNamePropertyMethod {
 		@Property("foo")
 		public String getName() {
 			return "name";
@@ -214,7 +208,7 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	private static class NonMatchingPropertyMethod {
+	static class NonMatchingPropertyMethod {
 		@Property("value")
 		public Integer getValue() {
 			return new Integer(1);
@@ -223,41 +217,41 @@ public class JavaBeanRunnerTest {
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	private static class NonPublicPropertyField {
+	static class NonPublicPropertyField {
 		@Property("value")
 		private String name = "name";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	private static class InvalidNamePropertyField {
+	static class InvalidNamePropertyField {
 		@Property("foo")
 		public String name = "name";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	private static class NonMatchingPropertyField {
+	static class NonMatchingPropertyField {
 		@Property("value")
 		public Integer name = new Integer(1);
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	public static class NoPropertyAnnotations {
+	static class NoPropertyAnnotations {
 		public Integer name = new Integer(1);
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(ComplexBean.class)
-	public static class MissingMatchingPropertyAnnotations {
+	static class MissingMatchingPropertyAnnotations {
 		@Property("example")
 		public String name = "name";
 	}
 	
 	@RunWith(JavaBeanRunner.class)
 	@Bean(SimpleBean.class)
-	private static class DuplicatePropertyMembers {
+	static class DuplicatePropertyMembers {
 		@Property("value")
 		public String value = "value";
 		@Property("value")
