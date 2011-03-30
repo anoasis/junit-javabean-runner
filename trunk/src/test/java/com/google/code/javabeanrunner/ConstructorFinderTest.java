@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.Serializable;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.management.LockInfo;
 
 import org.junit.Test;
 
@@ -34,7 +35,7 @@ public class ConstructorFinderTest {
 	
 	@Test
 	public void annotatedConstructorIsFound() {
-		ConstructorFinder finder = new ConstructorFinder(Point.class);
+		ConstructorFinder finder = new ConstructorFinder(LockInfo.class);
 		assertNotNull(finder.findConstructor());
 	}
 }
