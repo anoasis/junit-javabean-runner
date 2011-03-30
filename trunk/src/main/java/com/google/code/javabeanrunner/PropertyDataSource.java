@@ -1,6 +1,7 @@
 package com.google.code.javabeanrunner;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import com.google.code.javabeanrunner.JavaBeanRunner.Property;
 
 class PropertyDataSource {
 	private final Object source;
-	private final Map<String, MemberAdapter> memberMap = new HashMap<String, MemberAdapter>();
+	private final Map<String, Object> memberMap = new HashMap<String, Object>();
 	
 	public PropertyDataSource(Object source) {
 		this.source = source;
@@ -47,7 +48,11 @@ class PropertyDataSource {
 			if (memberMap.containsKey(property.value())) {
 				continue;
 			}
-			memberMap.put(property.value(), member);
+			try {
+				memberMap.put(property.value(), member.value(source));
+			} catch (Exception e) {
+				continue;
+			}
 		}
 	}
 
@@ -60,10 +65,6 @@ class PropertyDataSource {
 	}
 	
 	public Object valueOf(String name) {
-		try {
-			return memberMap.get(name).value(source);
-		} catch (Exception e) {
-			throw new IllegalArgumentException(e);
-		}
+		return memberMap.get(name);
 	}
 }
