@@ -46,7 +46,9 @@ class MutationStatement extends Statement {
 			setter.invoke(target, dataSource.valueOf(property.getName()));
 			Object targetValue = getter.invoke(target);
 			assertEquals(dataSource.valueOf(property.getName()), targetValue);
-			assertThat(originValue, not(equalTo(targetValue)));
+			if(!(originValue instanceof Collection<?>||originValue instanceof Map<?,?>)){
+				assertThat(originValue, not(equalTo(targetValue)));
+			}
 		} catch (Exception e) {
 			throw new PreconditionFailureException(e);
 		}
